@@ -42,7 +42,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .drag-hint{position:absolute;left:50%;top:calc(50% + 40px);transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:999px;font-size:14px;box-shadow:var(--shadow);pointer-events:none;z-index:5;white-space:nowrap;transition:opacity .5s}
 .drag-hint.bye{opacity:0}
 @media (min-width:861px){.drag-hint{left:calc(50% - 180px)}}
-#labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+#labels{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}  /* own stacking context: label z-order never rises above the panels */
 .r-北部{--rc:var(--north)} .r-中部{--rc:var(--mid)} .r-南部{--rc:var(--south)} .r-東部{--rc:var(--east)} .r-離島{--rc:var(--isle)}
 .tag{position:absolute;left:0;top:0;white-space:nowrap;pointer-events:auto;
   display:flex;align-items:center;gap:5px;padding:3px 10px 3px 4px;border-radius:999px;border:0;
