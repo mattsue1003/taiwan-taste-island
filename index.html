@@ -57,6 +57,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 .brand .eyebrow{font-family:var(--f-mono);font-size:10px;letter-spacing:.14em;color:var(--ink-2)}
 .brand h1{font-family:var(--f-display);font-size:30px;margin:2px 0 4px;line-height:1.1}
 .brand h1 span{color:var(--gold)}
+.rep-btn{position:absolute;top:8px;right:10px;border:1px solid var(--line);background:transparent;color:var(--ink-2);font:600 11px/1 var(--f-body,inherit);padding:5px 8px;border-radius:999px;cursor:pointer;opacity:.75}
+.rep-btn:hover,.rep-btn:focus-visible{opacity:1;color:var(--ink)}
 .brand p{margin:0;font-size:12.5px;color:var(--ink-2);line-height:1.55}
 .regions{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
 .regions button{border:0;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;color:#fff;background:var(--rc)}
@@ -274,6 +276,7 @@ body[data-mode="mission"] .viewpad{bottom:calc(70px + env(safe-area-inset-bottom
   <div id="labels" aria-hidden="true"></div>
 
   <header class="brand">
+    <button class="rep-btn" id="repBtn" type="button" hidden aria-label="回報錯誤或建議">⚑ 回報</button>
     <div class="eyebrow">TAIWAN · 22 縣市名產地圖</div>
     <h1>台灣<span>好味</span>島</h1>
     <p>一格一個縣市。點一下，看看那裡有什麼好吃、好玩，還有可以一起聊的話題。</p>
@@ -1909,7 +1912,7 @@ const _closeBoard = $('#board-close').onclick; $('#board-close').onclick = () =>
 
 </script>
 <script>window.REPORT_CONTEXT=()=>{try{if(state&&state.mode==="county"){const c=CS[state.ci];return{item:c.id||String(state.ci),itemName:c.name}}}catch(e){}return{}}</script>
-<script src="https://mattsue1003.github.io/oth-report-button/report.js" data-site="台灣好味島" data-position="left" data-offset="56" defer></script>
-<script>/* 手機：回報鈕對齊「視角」鈕高度；電腦：縣市卡打開時移到卡片右邊 */setInterval(()=>{const f=document.querySelector("[data-oth-report]")?.shadowRoot?.querySelector(".fab"),t=document.querySelector(".vp-toggle");if(!f||!t)return;const r=t.getBoundingClientRect(),c=document.querySelector("#card");f.style.bottom=r.height?Math.round(innerHeight-r.bottom)+"px":"";const cr=c&&!c.hidden&&!r.height?c.getBoundingClientRect():null;f.style.left=cr&&cr.bottom>innerHeight-110?Math.round(cr.right+12)+"px":""},400)</script>
+<script src="https://mattsue1003.github.io/oth-report-button/report.js" data-site="台灣好味島" data-position="left" defer></script>
+<script>/* 不用浮動鈕，改由標題卡右上角「⚑ 回報」開啟 */addEventListener("load",()=>{const r=document.querySelector("[data-oth-report]")?.shadowRoot,b=document.getElementById("repBtn");if(!r||!window.openReport||!b)return;const st=document.createElement("style");st.textContent=".fab{display:none!important}";r.appendChild(st);b.hidden=false;b.onclick=()=>openReport()})</script>
 </body>
 </html>
