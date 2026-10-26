@@ -162,7 +162,7 @@ body[data-mode="mission"] .viewpad{bottom:calc(70px + env(safe-area-inset-bottom
 .quiz-intro{padding:8px;font-size:13.5px;line-height:1.7;color:var(--ink-2)}
 .quiz-intro b{color:var(--ink)}
 
-.card{position:absolute;left:max(16px,env(safe-area-inset-left,0px));top:calc(170px + env(safe-area-inset-top,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));
+.card{position:absolute;left:max(16px,env(safe-area-inset-left,0px));top:var(--brand-b,calc(170px + env(safe-area-inset-top,0px)));bottom:calc(16px + env(safe-area-inset-bottom,0px));
   width:min(400px,calc(100vw - 32px));background:var(--panel);backdrop-filter:blur(8px);border-radius:20px;box-shadow:var(--shadow);
   display:flex;flex-direction:column;overflow:hidden;border-top:6px solid var(--rc)}
 .card .close{position:absolute;right:10px;top:8px;border:0;background:transparent;font-size:24px;line-height:1;padding:4px 8px;color:var(--ink-2)}
@@ -253,6 +253,9 @@ body[data-mode="mission"] .viewpad{bottom:calc(70px + env(safe-area-inset-bottom
   .viewpad{right:max(12px,env(safe-area-inset-right,0px));bottom:calc(46% + 60px);padding:4px;gap:4px} .viewpad button{min-width:38px;height:34px}
   #app:has(.sidebar.min) .viewpad{bottom:180px}
   body[data-mode="mission"] .viewpad{bottom:180px}
+  body[data-mode="mission"] .sidebar{display:none}
+  body[data-mode="mission"] #app .toolbar{bottom:calc(78px + env(safe-area-inset-bottom,0px))}
+  body[data-mode="mission"] #app .viewpad{bottom:calc(128px + env(safe-area-inset-bottom,0px))}
   .sheet-handle{display:block;margin:0 auto 4px;border:0;background:transparent;padding:6px 30px}
   .sheet-handle i{display:block;width:42px;height:5px;border-radius:9px;background:var(--line)}
   .side-head h2,.side-head p{display:none}
@@ -275,7 +278,7 @@ body[data-mode="mission"] .viewpad{bottom:calc(70px + env(safe-area-inset-bottom
   .viewpad{top:calc(10px + env(safe-area-inset-top,0px));bottom:auto!important;right:max(10px,env(safe-area-inset-right,0px))} .vp-seg{display:none} .viewpad button{height:30px;min-width:34px}
   .card{height:80%}
 }
-@media (min-width:861px) and (max-height:620px){ .brand p{display:none} .card{top:calc(130px + env(safe-area-inset-top,0px))} }
+@media (min-width:861px) and (max-height:620px){ .brand p{display:none} .card{top:var(--brand-b,calc(130px + env(safe-area-inset-top,0px)))} }
 </style>
 
 <main id="app">
@@ -376,10 +379,10 @@ function host(u){ try{ return new URL(u).hostname.replace(/^www\./,''); }catch(e
 THREE.ColorManagement.legacyMode = false;
 const stage = $('#stage');
 const renderer = new THREE.WebGLRenderer({antialias:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
+const PR_MAX = Math.min(devicePixelRatio, 1.75); renderer.setPixelRatio(PR_MAX);
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = .92;
-renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.shadowMap.autoUpdate = false;
 stage.appendChild(renderer.domElement);
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(36, 1, 0.5, 900);
@@ -400,12 +403,12 @@ const lampMat = new THREE.MeshStandardMaterial({color:0xfff2b8, emissive:0xffd36
 const lanternMat = new THREE.MeshStandardMaterial({color:0xffa94d, emissive:0xff8a2a, emissiveIntensity:.15, roughness:.5});
 const G = {}; const geo = (k, fn) => G[k] || (G[k] = fn());
 function mesh(g, m, x=0,y=0,z=0){ const o = new THREE.Mesh(g, typeof m === 'number' ? mat(m) : m); o.position.set(x,y,z); o.castShadow = o.receiveShadow = true; return o; }
-const sph = (r,ws=16,hs=12) => geo(`s${r},${ws}`, () => new THREE.SphereGeometry(r,ws,hs));
-const cyl = (rt,rb,h,s=16) => geo(`c${rt},${rb},${h},${s}`, () => new THREE.CylinderGeometry(rt,rb,h,s));
-const cone = (r,h,s=16) => geo(`k${r},${h},${s}`, () => new THREE.ConeGeometry(r,h,s));
-const rbox = (w,h,d,r=.06) => geo(`b${w},${h},${d},${r}`, () => new THREE.RoundedBoxGeometry(w,h,d,3,Math.min(r, w/2-.002, h/2-.002, d/2-.002)));
-const capsule = (r,l) => geo(`p${r},${l}`, () => new THREE.CapsuleGeometry(r,l,4,12));
-const torus = (r,t,arc=Math.PI*2) => geo(`t${r},${t},${arc}`, () => new THREE.TorusGeometry(r,t,8,20,arc));
+const sph = (r,ws=12,hs=9) => geo(`s${r},${ws}`, () => new THREE.SphereGeometry(r,ws,hs));
+const cyl = (rt,rb,h,s=12) => geo(`c${rt},${rb},${h},${s}`, () => new THREE.CylinderGeometry(rt,rb,h,s));
+const cone = (r,h,s=12) => geo(`k${r},${h},${s}`, () => new THREE.ConeGeometry(r,h,s));
+const rbox = (w,h,d,r=.06) => geo(`b${w},${h},${d},${r}`, () => new THREE.RoundedBoxGeometry(w,h,d,2,Math.min(r, w/2-.002, h/2-.002, d/2-.002)));
+const capsule = (r,l) => geo(`p${r},${l}`, () => new THREE.CapsuleGeometry(r,l,3,10));
+const torus = (r,t,arc=Math.PI*2) => geo(`t${r},${t},${arc}`, () => new THREE.TorusGeometry(r,t,6,16,arc));
 const prism = (w,h,len) => geo(`r${w},${h},${len}`, () => { const s = new THREE.Shape(); s.moveTo(-w/2,0); s.lineTo(w/2,0); s.lineTo(0,h); s.lineTo(-w/2,0);
   const g = new THREE.ExtrudeGeometry(s, {depth:len, bevelEnabled:true, bevelThickness:.03, bevelSize:.03, bevelSegments:2}); g.translate(0,0,-len/2); return g; });
 const heart = () => geo('heart', () => { const s = new THREE.Shape(), k = .006;
@@ -478,7 +481,7 @@ const ETHS = ['minnan','hakka','indigenous','minnan','hakka','indigenous','newco
 const ROLE_NAME = {doctor:'醫師', nurse:'護理師', teacher:'老師', student:'學生', housewife:'家庭主婦', plumber:'水電工', engineer:'工程師', architect:'建築師', designer:'設計師', cleanroom:'無塵室工程師', cleaner:'清潔隊員', caregiver:'照顧服務員', pt:'治療師', finance:'上班族', chef:'廚師', inspector:'檢驗員', farmer:'農夫', worker:'工人', driver:'司機', elder:'長輩'};
 const ETH_NAME = {minnan:'閩南', hakka:'客家', indigenous:'原住民', newcomer:'新住民'};
 const mouthD = () => geo('mouthD', () => { const s = new THREE.Shape(); s.absarc(0,0,.034,Math.PI,2*Math.PI,false); s.lineTo(-.034,0); return new THREE.ShapeGeometry(s, 10); });
-const halfSph = (r, k) => geo(`hs${r},${k}`, () => new THREE.SphereGeometry(r,16,10,0,Math.PI*2,0,Math.PI*k));
+const halfSph = (r, k) => geo(`hs${r},${k}`, () => new THREE.SphereGeometry(r,12,8,0,Math.PI*2,0,Math.PI*k));
 function face(p, y, mood, hair){
   const zf = .138;
   for(const s of [-1,1]){
@@ -1582,7 +1585,8 @@ function listHTML(c, arr, kind, focus, label){ const SHOW = 5, head = arr.slice(
   return head.map(x => itemHTML(c, x, kind, focus)).join('') + (rest.length ? `<details class="more-list"${rest.some(x => x.n === focus) ? ' open' : ''}><summary><span class="ml-closed">再看 ${rest.length} 項${label} ▾</span><span class="ml-open">收起 ▴</span></summary>${rest.map(x => itemHTML(c, x, kind, focus)).join('')}</details>` : ''); }
 const placeURL = s => `https://www.google.com/maps/search/?api=1&query=${q$(s.name)}${s.pid ? '&query_place_id=' + s.pid : ''}`;
 function shopsHTML(c, it){ const s = it.shops || [];
-  return `<div class="shops"><div class="shops-h">⭐ 評價好的店 <small>Google 地圖 4.2★ 以上・2026/10 查詢</small></div>${s.length ? s.map(x => `<a class="shop" href="${placeURL(x)}" target="_blank" rel="noopener"><b>${esc(x.name)}</b><span><em class="star">★ ${x.r.toFixed(1)}</em>（${x.c.toLocaleString()} 則評論）${x.area ? '・' + esc(x.area) : ''}</span><i aria-hidden="true">↗</i></a>`).join('') : `<p class="noshop">目前在地圖上找不到 4 星以上又評論夠多的店，可以用下面的按鈕自己找找看。</p>`}
+  if(!s.length) return `<div class="shops"><a class="shop more" href="${mapURL(c.full + ' ' + it.n)}" target="_blank" rel="noopener"><b>🔎 在 Google 地圖找「${esc(it.n)}」</b><i aria-hidden="true">↗</i></a></div>`;
+  return `<div class="shops"><div class="shops-h">⭐ 評價好的店 <small>Google 地圖 4.2★ 以上・2026/10 查詢</small></div>${s.map(x => `<a class="shop" href="${placeURL(x)}" target="_blank" rel="noopener"><b>${esc(x.name)}</b><span><em class="star">★ ${x.r.toFixed(1)}</em>（${x.c.toLocaleString()} 則評論）${x.area ? '・' + esc(x.area) : ''}</span><i aria-hidden="true">↗</i></a>`).join('')}
     <a class="shop more" href="${mapURL(c.full + ' ' + it.n)}" target="_blank" rel="noopener"><b>在 Google 地圖找更多「${esc(it.n)}」</b><i aria-hidden="true">↗</i></a></div>`; }
 function renderCard(ci, focus){ const c = CS[ci], card = $('#card'); card.className = 'card r-'+c.region;
   const prev = (ci + CS.length - 1) % CS.length, next = (ci + 1) % CS.length;
@@ -1592,7 +1596,7 @@ function renderCard(ci, focus){ const c = CS[ci], card = $('#card'); card.classN
     <h4>📍 景點 <small>${c.spots.length} 個・點一下看特色、地圖和影片</small></h4>${listHTML(c, c.spots, 'spot', focus, '景點')}
     <h4>💬 一起聊聊</h4><ul class="talk">${c.talk.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
     <div class="nav2"><button data-go="${prev}">‹ ${esc(CS[prev].name)}</button><button data-go="${next}">${esc(CS[next].name)} ›</button></div>`;
-  card.hidden = false; $('#card-content').scrollTop = 0; if(focus) requestAnimationFrame(() => $('#card-content details[open]')?.scrollIntoView({block:'center'})); }
+  brandBottom(); card.hidden = false; $('#card-content').scrollTop = 0; if(focus) requestAnimationFrame(() => $('#card-content details[open]')?.scrollIntoView({block:'center'})); }
 $('#card-content').addEventListener('click', e => { const b = e.target.closest('[data-go]'); if(b) selectCounty(+b.dataset.go); });
 $('#card-close').onclick = clearSel;
 
@@ -1689,7 +1693,18 @@ function frame(){ const dt = Math.min(clock.getDelta(), .05);
   for(const t of tiles){ const tgt = 0; t.ring.material.opacity = t.target ? .75 + Math.sin(time*4)*.2 : (t === hovered ? .45 : 0); t.v += (tgt - t.lift) * 140 * dt; t.v *= Math.max(0, 1 - 9*dt); t.lift += t.v * dt;
     t.grp.position.y = .1 + t.lift; if(t.spark.visible = (t.target||0) > 0){ t.spark.rotation.y += dt*1.2; t.spark.position.y = t.top + 2.6 + Math.sin(time*2)*.1; } }
   if(flight){ flight.t += dt/flight.dur; const k = flight.t >= 1 ? 1 : 1-Math.pow(1-flight.t,3); camera.position.lerpVectors(flight.p0, flight.p1, k); controls.target.lerpVectors(flight.c0, flight.c1, k); if(flight.t >= 1){ flight = null; markCam(); } }
-  updateViewOffset(dt); controls.update(); renderer.render(scene, camera); placeLabels(); requestAnimationFrame(frame); }
+  updateViewOffset(dt); controls.update();
+  if((++frameNo & 1) === 0) renderer.shadowMap.needsUpdate = true;   // 陰影每兩格更新一次就夠
+  renderer.render(scene, camera); placeLabels(); adaptQuality(clock.elapsedTime); requestAnimationFrame(frame); }
+/* 縣市卡片接在標題卡下方（標題卡高度會隨字型、視窗寬度變） */
+function brandBottom(){ const b = document.querySelector('.brand').getBoundingClientRect(); if(b.height) document.documentElement.style.setProperty('--brand-b', Math.round(b.bottom + 10) + 'px'); }
+new ResizeObserver(brandBottom).observe(document.querySelector('.brand')); brandBottom();
+/* 自動畫質：太慢就降解析度（手機、舊電腦），很順再慢慢升回去 */
+let frameNo = 0, qT0 = 0, qN = 0;
+function adaptQuality(now){ if(document.hidden) return; qN++; if(!qT0){ qT0 = now; return; } const span = now - qT0; if(span < 2) return;
+  const fps = qN / span, pr = renderer.getPixelRatio(); qT0 = now; qN = 0;
+  if(fps < 40 && pr > 1) setPR(Math.max(1, pr - .25)); else if(fps > 57 && pr < PR_MAX) setPR(Math.min(PR_MAX, pr + .25)); }
+function setPR(pr){ renderer.setPixelRatio(pr); }   // three.js 會用原本的尺寸重設畫布
 
 /* ---------- boot ---------- */
 const cellsAll = buildTaiwan(); landCells.push(...cellsAll, ...tiles.filter(t => t.off).map(t => [t.world.x, t.world.z]));
